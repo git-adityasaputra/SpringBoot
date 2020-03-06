@@ -1,13 +1,10 @@
 package com.codeid.restservice.controller;
 
-import java.util.Iterator;
-import java.util.List;
-
 import com.codeid.restservice.entities.Item;
 import com.codeid.restservice.models.ResponseMessage;
-
+import com.codeid.restservice.service.ItemService;
+import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -21,54 +18,50 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class ItemController {
 
-    @Autowired // mencari bean yang setipe -> baca tipenya bukan name
-    @Qualifier("itemsBean")
-    private List<Item> items;
 
+    @Autowired
+    private ItemService ItemService;
+    
     @PostMapping
     public ResponseMessage<Item> add(@RequestBody Item item) {
-        item.setId(items.size() + 1);
-        items.add(item);
-
-        return ResponseMessage.success(item);
+        Item addedItem = ItemService.add(item);
+        return ResponseMessage.success(addedItem);
     }
 
     @PutMapping("/{id}")
     public ResponseMessage<Item> edit(@PathVariable Integer id, @RequestBody Item item) {
-        for (Item i : items) {
-            if (i.getId().equals(id)) {
-                i.setName(item.getName());
-                return ResponseMessage.success(i);
-            }
+        item.setId(id);
+        Item editedItem = ItemService.edit(item);
+        if (editedItem != null) {
+            return ResponseMessage.success(editedItem);
+        } else{
+        return ResponseMessage.error(1, "Data Not Found");
         }
-        return ResponseMessage.error(1, "Data not found.");
     }
-
+    
     @DeleteMapping("/{id}")
-    public ResponseMessage<Item> remove(@PathVariable Integer id) {
-        Iterator<Item> iterator = items.iterator();
-        while (iterator.hasNext()) {
-            Item item = iterator.next();
-            if (item.getId().equals(id)) {
-                iterator.remove();
-                return ResponseMessage.success(item);
-            }
+    public ResponseMessage<Item> removeById(@PathVariable Integer id){
+        Item item = ItemService.removeById(id);
+        if (item != null) {
+            return ResponseMessage.success(item);
+        } else{
+        return ResponseMessage.error(1, "Data Not Found");
         }
-        return ResponseMessage.error(1, "Data not found.");
-    }
+    } 
 
     @GetMapping("/{id}")
     public ResponseMessage<Item> findById(@PathVariable Integer id) {
-        for (Item item : items) {
-            if (item.getId().equals(id)) {
-                return ResponseMessage.success(item);
-            }
+        Item item = ItemService.findById(id);
+        if (item != null) {
+            return ResponseMessage.success(item);
+        } else{
+        return ResponseMessage.error(1, "Data Not Found");
         }
-        return ResponseMessage.error(1, "Data not found.");
     }
 
-    @GetMapping
+    @GetMapping()
     public ResponseMessage<List<Item>> findAll() {
+        List<Item> items = ItemService.findAll();
         return ResponseMessage.success(items);
     }
 }

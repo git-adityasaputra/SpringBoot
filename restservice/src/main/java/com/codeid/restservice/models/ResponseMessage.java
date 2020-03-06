@@ -35,12 +35,12 @@ public class ResponseMessage<T> {
         this.data = data;
     }
 
-    public static <T> ResponseMessage <T> success (T data){
+    public static <T> ResponseMessage<T> success(T data) {
         return new ResponseMessage<T>(0, null, data);
     }
 
-    public static ResponseMessage error (int code, String message){
-        return new ResponseMessage (code, message, null);
+    public static ResponseMessage error(int code, String message) {
+        return new ResponseMessage(code, message, null);
     }
 
 }
